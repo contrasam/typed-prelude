@@ -67,7 +67,7 @@ export function isMap<A = unknown, B = unknown>(x: any): x is Map<A, B> {
   )
 }
 
-function isFunction(x: any) {
+export function isFunction(x: any) {
   return typeof x === 'function'
 }
 
@@ -77,6 +77,10 @@ export function isNumber(x: any): x is number {
 
 export function isString(x: any): x is string {
   return typeof x === 'string'
+}
+
+export function isBool(x: any): x is boolean {
+  return typeof x === 'boolean'
 }
 
 export function isObject<A extends object = Object>(x: A | undefined | null | void): x is A
