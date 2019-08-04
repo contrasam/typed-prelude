@@ -1,5 +1,6 @@
 import { isBrowser } from '@typed/common'
 import { createHistoryEnv, wrapInSubscription } from '@typed/history'
+import { isUndefined } from '@typed/logic'
 import { serverStorage } from '@typed/storage'
 import { DomEnv } from './types'
 
@@ -10,6 +11,8 @@ export type CreateDomEnvOptions = {
   customElements?: CustomElementRegistry // Share customElements across DomEnvs
   setGlobals?: boolean // Will add DomEnv to 'global' in node environment
   window?: any // Custom value for window - defaults to 'global'
+  innerHeight?: number
+  innerWidth?: number
 }
 
 const POPSTATE_EVENT_TYPE = 'popstate'
@@ -18,7 +21,7 @@ const POPSTATE_EVENT_TYPE = 'popstate'
 // Not 100% Browser compliant in Node.
 // Based on basicHTML, @typed/history, and @typed/storage
 // Easy way to avoid globals. Options are only used in server environments
-export function createDomEnv<A>(options: CreateDomEnvOptions = {}): DomEnv<A> {
+export function createDomEnv<A>(options: CreateDomEnvOptions = { setGlobals: false }): DomEnv<A> {
   if (!isBrowser) {
     const basic = require('basichtml')
 
@@ -30,17 +33,19 @@ export function createDomEnv<A>(options: CreateDomEnvOptions = {}): DomEnv<A> {
     const customElements = options.customElements || new basic.CustomElementRegistry()
     const window = (options.window || (global as any)) as Window
     const document = new basic.Document(customElements)
-
     const NodeImage = (width?: number | undefined, height?: number | undefined) =>
       basic.Image(document, width, height)
-    class NodeHTMLElement extends basic.HTMLElement {
-      constructor(name: string) {
-        super(document, name)
-      }
+
+    if (!isUndefined(options.innerHeight)) {
+      ;(window as any).innerHeight = options.innerHeight
     }
 
-    basic.EventTarget.init(window)
+    if (!isUndefined(options.innerWidth)) {
+      ;(window as any).innerWidth = options.innerWidth
+    }
 
+    document.customElements = customElements
+    basic.EventTarget.init(window)
     subscription.subscribe(({ history }) => {
       const event = new basic.Event(POPSTATE_EVENT_TYPE, { bubbles: true, cancelable: false })
 
@@ -64,7 +69,7 @@ export function createDomEnv<A>(options: CreateDomEnvOptions = {}): DomEnv<A> {
       win.location = location
       win.localStorage = localStorage
       win.sessionStorage = sessionStorage
-      win.HTMLElement = NodeHTMLElement
+      win.HTMLElement = basic.HTMLElement
       win.Event = basic.Event
       win.CustomEvent = basic.CustomEvent
       win.Image = NodeImage
@@ -78,7 +83,7 @@ export function createDomEnv<A>(options: CreateDomEnvOptions = {}): DomEnv<A> {
       localStorage,
       sessionStorage,
       customElements,
-      HTMLElement: (NodeHTMLElement as any) as typeof HTMLElement,
+      HTMLElement: basic.HTMLElement,
       Event: basic.Event,
       CustomEvent: basic.CustomEvent,
       Image: (NodeImage as any) as typeof Image,

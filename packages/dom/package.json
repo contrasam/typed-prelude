@@ -32,6 +32,7 @@
     "@typed/common": "^1.0.2",
     "@typed/disposable": "^1.0.3",
     "@typed/history": "^3.0.3",
+    "@typed/logic": "^4.0.3",
     "@typed/maybe": "^8.0.3",
     "@typed/storage": "^1.0.3"
   },
