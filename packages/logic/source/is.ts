@@ -1,3 +1,9 @@
+import { Primitive } from '@typed/lambda'
+
+export function isPrimitive(x: any): x is Primitive {
+  return isNull(x) || !(isFunction(x) || isObject(x))
+}
+
 export function isUndefined(x: any): x is undefined {
   return x === undefined
 }
@@ -19,11 +25,11 @@ export function isArray<A = unknown>(x: any): x is A[] {
 }
 
 export function isIterator<A = unknown>(x: any): x is Iterator<A> {
-  return x && typeof (x as Iterator<A>).next === 'function'
+  return x && isFunction((x as Iterator<A>).next)
 }
 
 export function isIterable<A = unknown>(x: any): x is Iterable<A> {
-  return x && typeof x[Symbol.iterator] === 'function' && isIterator(x[Symbol.iterator]())
+  return x && isFunction(x[Symbol.iterator]) && isIterator(x[Symbol.iterator]())
 }
 
 export function isArrayLike<A = unknown>(x: any): x is ArrayLike<A> {
@@ -63,7 +69,7 @@ export function isMap<A = unknown, B = unknown>(x: any): x is Map<A, B> {
     isFunction(map.has) &&
     isFunction(map.delete) &&
     isFunction(map.clear) &&
-    isFunction(map[Symbol.iterator])
+    isIterable(map)
   )
 }
 
@@ -107,6 +113,6 @@ export function isSet<A = any>(x: any): x is Set<A> {
     isFunction(set.clear) &&
     isFunction(set.delete) &&
     isFunction(set.has) &&
-    isFunction(set[Symbol.iterator])
+    isIterable(set)
   )
 }
