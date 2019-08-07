@@ -28,6 +28,9 @@
       "path": "../history/tsconfig.json"
     },
     {
+      "path": "../logic/tsconfig.json"
+    },
+    {
       "path": "../maybe/tsconfig.json"
     },
     {
