@@ -2,9 +2,10 @@ import { isBrowser } from '@typed/common'
 import { createHistoryEnv, wrapInSubscription } from '@typed/history'
 import { isUndefined } from '@typed/logic'
 import { serverStorage } from '@typed/storage'
-import { NodeFilter as ServerNodeFilter } from './NodeFilter'
+import { NodeFilter, NodeFilter as ServerNodeFilter } from './NodeFilter'
 import { NodeIteratorImpl } from './NodeIterator'
-import { DomEnv } from './types'
+import { TreeWalkerImpl } from './TreeWalker'
+import { DomEnv, INodeFilter } from './types'
 
 export type CreateDomEnvOptions = {
   serverUrl?: string // Location.href to fallback to in node environment
@@ -38,8 +39,16 @@ export function createDomEnv<A>(options: CreateDomEnvOptions = { setGlobals: fal
     const NodeImage = (width?: number | undefined, height?: number | undefined) =>
       basic.Image(document, width, height)
 
-    document.createNodeIterator = (root, whatToShow, filter) =>
-      new NodeIteratorImpl(root, whatToShow, filter ? filter : void 0)
+    document.createNodeIterator = (
+      root: Node,
+      whatToShow: NodeFilter = NodeFilter.SHOW_ALL,
+      filter?: INodeFilter | null,
+    ) => new NodeIteratorImpl(root, whatToShow, filter ? filter : void 0)
+    document.createTreeWalker = (
+      root: Node,
+      whatToShow: NodeFilter = NodeFilter.SHOW_ALL,
+      filter?: INodeFilter | null,
+    ) => new TreeWalkerImpl(root, whatToShow, filter ? filter : void 0)
 
     class NodeHTMLElement extends basic.HTMLElement {
       constructor(name: string) {
