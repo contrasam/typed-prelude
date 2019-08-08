@@ -34,9 +34,10 @@
     "@typed/history": "^3.0.3",
     "@typed/logic": "^4.0.3",
     "@typed/maybe": "^8.0.3",
+    "@typed/math": "^4.0.3",
     "@typed/storage": "^1.0.3",
     "domdiff": "^2.0.6"
-},
+  },
   "sideEffects": false,
   "gitHead": "44de53576265995c67a5f4b5a2bdb72cfd3456ae",
   "unpkg": "./umd/index.js",

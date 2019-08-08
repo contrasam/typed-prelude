@@ -1,4 +1,7 @@
+import { and, complement, isBool, isNotNull, isNotUndefined } from '@typed/logic'
 import domdiff from 'domdiff'
+
+const shouldNotRender = and(and(isNotNull, complement(isBool)), isNotUndefined)
 
 export function insertNodesBefore(
   parent: Node,
@@ -23,8 +26,12 @@ export function removeNodes(container: Node, start: Node | null, end: Node | nul
 
 export function updateChildren(
   container: Node,
-  currentNodes: Node[],
-  updatedNodes: Node[],
+  currentNodes: ReadonlyArray<Node | null | undefined | boolean>,
+  updatedNodes: ReadonlyArray<Node | null | undefined | boolean>,
 ): Node[] {
-  return domdiff(container, currentNodes, updatedNodes)
+  return domdiff(
+    container,
+    currentNodes.filter(shouldNotRender) as Node[],
+    updatedNodes.filter(shouldNotRender) as Node[],
+  )
 }

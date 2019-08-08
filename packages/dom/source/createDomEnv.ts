@@ -2,6 +2,8 @@ import { isBrowser } from '@typed/common'
 import { createHistoryEnv, wrapInSubscription } from '@typed/history'
 import { isUndefined } from '@typed/logic'
 import { serverStorage } from '@typed/storage'
+import { NodeFilter as ServerNodeFilter } from './NodeFilter'
+import { NodeIteratorImpl } from './NodeIterator'
 import { DomEnv } from './types'
 
 export type CreateDomEnvOptions = {
@@ -32,9 +34,18 @@ export function createDomEnv<A>(options: CreateDomEnvOptions = { setGlobals: fal
     const sessionStorage = serverStorage(options.sessionStorage)
     const customElements = options.customElements || new basic.CustomElementRegistry()
     const window = (options.window || (global as any)) as Window
-    const document = new basic.Document(customElements)
+    const document: Document = new basic.Document(customElements)
     const NodeImage = (width?: number | undefined, height?: number | undefined) =>
       basic.Image(document, width, height)
+
+    document.createNodeIterator = (root, whatToShow, filter) =>
+      new NodeIteratorImpl(root, whatToShow, filter ? filter : void 0)
+
+    class NodeHTMLElement extends basic.HTMLElement {
+      constructor(name: string) {
+        super(document, name)
+      }
+    }
 
     if (!isUndefined(options.innerHeight)) {
       ;(window as any).innerHeight = options.innerHeight
@@ -44,7 +55,7 @@ export function createDomEnv<A>(options: CreateDomEnvOptions = { setGlobals: fal
       ;(window as any).innerWidth = options.innerWidth
     }
 
-    document.customElements = customElements
+    window.customElements = customElements
     basic.EventTarget.init(window)
     subscription.subscribe(({ history }) => {
       const event = new basic.Event(POPSTATE_EVENT_TYPE, { bubbles: true, cancelable: false })
@@ -69,7 +80,7 @@ export function createDomEnv<A>(options: CreateDomEnvOptions = { setGlobals: fal
       win.location = location
       win.localStorage = localStorage
       win.sessionStorage = sessionStorage
-      win.HTMLElement = basic.HTMLElement
+      win.HTMLElement = NodeHTMLElement
       win.Event = basic.Event
       win.CustomEvent = basic.CustomEvent
       win.Image = NodeImage
@@ -83,7 +94,8 @@ export function createDomEnv<A>(options: CreateDomEnvOptions = { setGlobals: fal
       localStorage,
       sessionStorage,
       customElements,
-      HTMLElement: basic.HTMLElement,
+      NodeFilter: ServerNodeFilter,
+      HTMLElement: NodeHTMLElement as any,
       Event: basic.Event,
       CustomEvent: basic.CustomEvent,
       Image: (NodeImage as any) as typeof Image,
@@ -99,6 +111,7 @@ export function createDomEnv<A>(options: CreateDomEnvOptions = { setGlobals: fal
     sessionStorage: window.sessionStorage,
     customElements: window.customElements,
     HTMLElement,
+    NodeFilter,
     Event,
     CustomEvent,
     Image,
