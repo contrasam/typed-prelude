@@ -3,7 +3,15 @@
   "version": "2.2.0",
   "description": "JSON-RPC for the cloud.",
   "main": "./cjs/index.js",
-  "dependencies": {},
+  "dependencies": {
+    "@most/core": "1.5.0",
+    "@most/types": "1.0.2",
+    "@typed/lambda": "2.1.0",
+    "@typed/logger": "3.2.0",
+    "@typed/logic": "5.2.0",
+    "@typed/objects": "5.1.0",
+    "@typed/streams": "1.2.0"
+  },
   "devDependencies": {},
   "keywords": [
     "JSON-RPC",
