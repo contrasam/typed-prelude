@@ -5,11 +5,11 @@ import { Env } from '@typed/env'
 import { Future } from '@typed/future'
 import * as fs from 'fs'
 
-export function* writeFile(
+export function writeFile(
   filePath: string,
   contents: string | Buffer,
 ): Effect<Env<never, Either<Error, void>>, Either<Error, void>, any> {
-  return yield* Effect.fromEnv(
+  return Effect.fromEnv(
     Future.create<never, Error, void>((reject, resolve) => {
       const disposable = Disposable.lazy()
 
